@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Point Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #f1f1f1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #00e676;
+    }
+    .player {
+      background: #1e1e1e;
+      padding: 14px;
+      margin: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      width: 280px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+    .player:hover {
+      transform: scale(1.03);
+    }
+    .controls button {
+      margin: 0 3px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+    .add-section {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 8px;
+    }
+    input {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      flex: 1;
+    }
+    button.add {
+      background: #00e676;
+      color: black;
+      font-weight: bold;
+    }
+    button.plus {
+      background: #2979ff;
+      color: white;
+    }
+    button.minus {
+      background: #d50000;
+      color: white;
+    }
+    button.reset {
+      background: #ff9100;
+      color: black;
+      margin-top: 15px;
+      padding: 10px 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🃏 Card Point Counter</h1>
+
+  <div class="add-section">
+    <input type="text" id="playerName" placeholder="Enter player name">
+    <button class="add" onclick="addPlayer()">Add</button>
+  </div>
+
+  <div id="players"></div>
+  <button class="reset" onclick="resetAll()">🔄 Reset All</button>
+
+  <script>
+    const playersDiv = document.getElementById('players');
+    let players = JSON.parse(localStorage.getItem("players")) || [];
+
+    function addPlayer() {
+      const nameInput = document.getElementById('playerName');
+      const name = nameInput.value.trim();
+      if (!name) return;
+      players.push({ name, points: 0 });
+      nameInput.value = '';
+      saveAndRender();
+    }
+
+    function updatePoints(index, delta) {
+      players[index].points += delta;
+      saveAndRender();
+    }
+
+    function resetAll() {
+      if (confirm("Reset all points?")) {
+        players.forEach(p => p.points = 0);
+        saveAndRender();
+      }
+    }
+
+    function saveAndRender() {
+      localStorage.setItem("players", JSON.stringify(players));
+      renderPlayers();
+    }
+
+    function renderPlayers() {
+      playersDiv.innerHTML = '';
+      players.forEach((p, i) => {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'player';
+        playerDiv.innerHTML = `
+          <div>
+            <strong>${p.name}</strong><br>
+            <span style="font-size:18px; color:#00e676;">${p.points}</span>
+          </div>
+          <div class="controls">
+            <button class="plus" onclick="updatePoints(${i}, 1)">+1</button>
+            <button class="minus" onclick="updatePoints(${i}, -1)">-1</button>
+          </div>
+        `;
+        playersDiv.appendChild(playerDiv);
+      });
+    }
+
+    renderPlayers();
+  </script>
+
+</body>
+</html>
